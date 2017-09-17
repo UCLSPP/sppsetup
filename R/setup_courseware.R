@@ -41,11 +41,13 @@ setup_courseware <- function() {
     })
 
     output$error_message <- shiny::renderText({
+      obsolete_message <- "This version of %s is too old. Please\ndownload the latest from:\n  %s"
+
       if (utils::compareVersion(paste(R.version$major, R.version$minor, sep = "."), R_required) < 0)
-        return("This version of R is too old. Please\ndownload the latest from:\n  https://cran.r-project.org")
+        return(sprintf(obsolete_message, "R", "https://cran.r-project.org"))
 
       if (!rstudioapi::isAvailable(RStudio_required))
-        return("This version of RStudio is too old. Please\ndownload the latest from:\n  https://www.rstudio.com")
+        return(sprintf(obsolete_message, "RStudio", "https://www.rstudio.com"))
 
       return("")
     })

@@ -13,7 +13,6 @@ get_module_names <- function() {
   return(module_names)
 }
 
-
 #----------------------------------------------------------------
 get_module_config <- function(id) {
   yaml::yaml.load_file(modules[as.integer(id)])

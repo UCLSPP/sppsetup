@@ -13,8 +13,8 @@ RoxygenNote: 6.0.1
 URL: https://github.com/UCLSPP/sppsetup
 BugReports: https://github.com/UCLSPP/sppsetup/issues
 Imports:
+  yaml,
   devtools,
-  yaml(>= 2.1.14),
   rstudioapi (>= 0.4),
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
