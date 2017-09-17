@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------
-show_message <- function(msg) {
+show_message <- function(msg, duration = NULL) {
   message(msg)
-  shiny::showNotification(msg, id = "status")
+  shiny::showNotification(msg, id = "status", duration = duration)
 }
 
 #----------------------------------------------------------------
@@ -102,6 +102,7 @@ sppsetup <- function(module_id, replace) {
 
   verify_packages(module$packages)
 
+  show_message("downloading datasets ...", duration = NULL)
   download_datasets(module$datasets$url, module$datasets$collection, module$working_dir, replace)
 
   save_config(module$name, config_env, module$config_file)
