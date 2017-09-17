@@ -90,13 +90,13 @@ verify_packages <- function(packages) {
 }
 
 #----------------------------------------------------------------
-sppsetup <- function(module_id, replace) {
+sppsetup <- function(module_config, replace) {
   config_env <- new.env()
   startup_file <- path.expand("~/.Rprofile")
 
   show_message("setting up courseware...")
 
-  module <- get_module_config(module_id)
+  module <- yaml::yaml.load_file(module_config)
 
   config_env$working_dir <- module$working_dir
 

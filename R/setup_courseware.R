@@ -18,7 +18,7 @@ setup_courseware <- function() {
       shiny::verbatimTextOutput("r_version", placeholder = TRUE),
       shiny::verbatimTextOutput("error_message", placeholder = FALSE),
       shiny::tags$style(type='text/css', '#error_message {color: red;}'),
-      shiny::selectInput("module", "Module:", get_modules()),
+      shiny::selectInput("module", "Module:", modules),
       shiny::checkboxInput("replace", label = "Update all datasets", value = FALSE),
       shiny::actionButton("setup", "Setup Courseware"),
       shiny::hr(),
