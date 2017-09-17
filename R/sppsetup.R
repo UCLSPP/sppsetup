@@ -37,30 +37,6 @@ save_config <- function(module, env, filename) {
 }
 
 #----------------------------------------------------------------
-update_startup_file <- function(config, filename) {
-  if (file.exists(filename))
-    return(0)
-
-  message(paste("updating startup file", filename))
-
-  startup_script <- c(
-    "# ---- created by sppsetup::courseware_setup() on %s",
-    "#",
-    "# set working directory if the R session is started in interactive mode\n",
-    "if (interactive()) {",
-    "  message(sprintf('setting working directory to %s'))",
-    "  %s",
-    "}\n"
-  )
-
-  writeLines(sprintf(paste(startup_script, collapse = "\n"),
-                     format(Sys.time(), "%b %d, %Y %H:%M %Z"),
-                     config$working_dir,
-                     make_setwd_expr(config$working_dir)),
-             filename)
-}
-
-#----------------------------------------------------------------
 verify_working_dir <- function(path) {
   if (dir.exists(path))
     return(0)
@@ -112,8 +88,6 @@ sppsetup <- function(module_config, replace) {
   download_datasets(module$datasets$url, module$datasets$collection, module$working_dir, replace)
 
   save_config(module$name, config_env, module$config_file)
-
-  update_startup_file(config_env, startup_file)
 
   hrule <- paste0("\n", paste(rep("*", 64), collapse = ""), "\n")
   cat(paste0(hrule, "IMPORTANT: Read this carefully", hrule))
