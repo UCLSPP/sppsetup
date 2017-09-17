@@ -8,6 +8,10 @@ setup_courseware <- function() {
   RStudio_required <- "1.0.153"
   messages <- shiny::reactiveValues(status_message="")
 
+  set_status <- function(msg) {
+    messages$status_message <- msg
+  }
+
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar("Setup Courseware", left = NULL),
     miniUI::miniContentPanel(
@@ -54,9 +58,14 @@ setup_courseware <- function() {
 
     shiny::observeEvent(input$setup, {
       messages$status_message <- "Do not close this window until the setup is complete."
-      sppsetup(input$module, input$replace)
-      messages$status_message <- "Done. You can close this window now."
-      show_modal_dialog("Courseware Setup Complete", "You can run the setup again anytime from the 'Addins' menu in RStudio")
+      tryCatch({
+        sppsetup(input$module, input$replace)
+        set_status("Done. You can close this window now.")
+        show_modal_dialog("Courseware Setup Complete", "You can run the setup again anytime from the 'Addins' menu in RStudio")
+      },
+        error = function(e) { set_status(e) },
+        warning = function(e) { set_status(e) }
+      )
     })
   }
 
