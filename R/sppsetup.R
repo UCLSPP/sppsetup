@@ -1,8 +1,7 @@
 # -------------------------------------------------------------------
-show_message <- function(msg, notify = FALSE) {
+show_message <- function(msg) {
   message(msg)
-  if (notify)
-    shiny::showNotification(msg)
+  shiny::showNotification(msg, id = "status")
 }
 
 #----------------------------------------------------------------
@@ -69,14 +68,11 @@ verify_working_dir <- function(path) {
 }
 
 #----------------------------------------------------------------
-verify_packages <- function(packages, test_only = FALSE) {
+verify_packages <- function(packages) {
   installed_packages <- rownames(utils::installed.packages())
 
   package_installer <- function(installer, packages, quiet = FALSE) {
     if (length(packages)) {
-      if (test_only)
-        stop(paste("missing package(s):", paste(packages, collapse = ", ")))
-
       show_message(paste("installing", paste(packages, collapse = ", ")))
       installer(packages, quiet = quiet)
     }
@@ -92,7 +88,7 @@ sppsetup <- function(module_id, replace) {
   config_env <- new.env()
   startup_file <- path.expand("~/.Rprofile")
 
-  show_message("setting up courseware...", notify = TRUE)
+  show_message("setting up courseware...")
 
   module <- get_module_config(module_id)
 
@@ -105,8 +101,6 @@ sppsetup <- function(module_id, replace) {
   verify_working_dir(module$working_dir)
 
   verify_packages(module$packages)
-
-  verify_packages(module$packages, test_only = TRUE)
 
   download_datasets(module$datasets$url, module$datasets$collection, module$working_dir, replace)
 

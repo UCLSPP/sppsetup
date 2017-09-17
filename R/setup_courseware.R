@@ -9,7 +9,7 @@ setup_courseware <- function() {
   messages <- shiny::reactiveValues(status_message="")
 
   set_status <- function(msg) {
-    messages$status_message <- msg
+    messages$status_message <- paste(msg, collapse = "\n")
   }
 
   ui <- miniUI::miniPage(
@@ -24,7 +24,7 @@ setup_courseware <- function() {
       shiny::hr(),
       shiny::verbatimTextOutput("status_message", placeholder = FALSE),
       shiny::tags$style(type='text/css', '#status_message {color: green;}'),
-      padding = 10, scrollable = FALSE)
+      padding = 10, scrollable = TRUE)
   )
 
   killapp <- function() {
@@ -69,5 +69,5 @@ setup_courseware <- function() {
     })
   }
 
-  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 400, height = 360))
+  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 400, height = 380))
 }
