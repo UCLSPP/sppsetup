@@ -2,10 +2,10 @@
 % Please edit documentation in R/setup_courseware.R
 \name{setup_courseware}
 \alias{setup_courseware}
-\title{UCLSPP Setup Courseware}
+\title{Setup Courseware}
 \usage{
 setup_courseware()
 }
 \description{
-\code{setup_courseware} UCLSPP Setup Courseware
+\code{setup_courseware} Setup Courseware
 }

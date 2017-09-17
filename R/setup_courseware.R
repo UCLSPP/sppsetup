@@ -1,6 +1,6 @@
-#' UCLSPP Setup Courseware
+#' Setup Courseware
 #'
-#' \code{setup_courseware} UCLSPP Setup Courseware
+#' \code{setup_courseware} Setup Courseware
 #'
 #' @export
 setup_courseware <- function() {

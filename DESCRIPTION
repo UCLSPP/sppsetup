@@ -18,5 +18,4 @@ Imports:
   rstudioapi (>= 0.4),
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
-  shinyjs (>= 0.9.1)
 Suggests: testthat
