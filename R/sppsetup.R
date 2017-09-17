@@ -56,7 +56,7 @@ verify_packages <- function(packages) {
   package_installer <- function(installer, packages, quiet = FALSE) {
     if (length(packages)) {
       show_message(paste("installing", paste(packages, collapse = ", ")))
-      installer(packages, quiet = quiet)
+      installer(packages, quiet = quiet, verbose = TRUE)
     }
   }
 
@@ -82,12 +82,12 @@ sppsetup <- function(module_config, replace) {
 
   verify_working_dir(module$working_dir)
 
-  verify_packages(module$packages)
-
   show_message("downloading datasets ...", duration = NULL)
   download_datasets(module$datasets$url, module$datasets$collection, module$working_dir, replace)
 
   save_config(module$name, config_env, module$config_file)
+
+  verify_packages(module$packages)
 
   hrule <- paste0("\n", paste(rep("*", 64), collapse = ""), "\n")
   cat(paste0(hrule, "IMPORTANT: Read this carefully", hrule))

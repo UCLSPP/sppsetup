@@ -66,8 +66,14 @@ setup_courseware <- function() {
         show_message(NULL)
         show_modal_dialog("Courseware Setup Complete", "You can run the setup again anytime from the 'Addins' menu in RStudio")
       },
-        error = function(e) { set_status(e) },
-        warning = function(e) { set_status(e) }
+        error = function(e) {
+          message(e$message)
+          set_status(e)
+        },
+        warning = function(e) {
+          message(e$message)
+          set_status(e)
+        }
       )
     })
   }
