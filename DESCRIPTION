@@ -14,7 +14,6 @@ URL: https://github.com/UCLSPP/sppsetup
 BugReports: https://github.com/UCLSPP/sppsetup/issues
 Modules:
   - PUBLG100: https://uclspp.github.io/PUBLG100/config.yml
-  - PUBLG088: https://uclspp.github.io/PUBLG088/config.yml
 Imports:
   yaml,
   devtools,

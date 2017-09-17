@@ -1,19 +1,11 @@
 #----------------------------------------------------------------
-modules <- c(
-  "https://uclspp.github.io/PUBLG100/config.yml"
-)
-
-#----------------------------------------------------------------
-get_module_names <- function() {
-  module_names <- sapply(modules, function(filename) {
-    yaml::yaml.load_file(filename)$name
-  }, USE.NAMES = TRUE)
-  names(module_names) <- module_names
-  module_names[] <- 1:length(module_names)
-  return(module_names)
+get_modules <- function() {
+  description_filename <- "https://raw.githubusercontent.com/UCLSPP/sppsetup/master/DESCRIPTION"
+  description <- yaml::yaml.load_file(description_filename)
+  return(unlist(description$Modules))
 }
 
 #----------------------------------------------------------------
-get_module_config <- function(id) {
-  yaml::yaml.load_file(modules[as.integer(id)])
+get_module_config <- function(module) {
+  yaml::yaml.load_file(module)
 }
