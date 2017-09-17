@@ -1,0 +1,22 @@
+Package: sppsetup
+Type: Package
+Title: UCLSPP Setup Courseware
+Version: 0.1.0
+Authors@R: c(
+    person("Altaf", "Ali", email = "altaf@fastmail.com", role = c("aut", "cre"))
+  )
+Description: An R Package for installing UCLSPP courseware.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+URL: https://github.com/UCLSPP/sppsetup
+BugReports: https://github.com/UCLSPP/sppsetup/issues
+Imports:
+  devtools,
+  yaml(>= 2.1.14),
+  rstudioapi (>= 0.4),
+  shiny (>= 0.13),
+  miniUI (>= 0.1.1),
+  shinyjs (>= 0.9.1)
+Suggests: testthat
