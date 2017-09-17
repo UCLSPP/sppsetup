@@ -9,7 +9,7 @@
 #'
 #' @export
 download_datasets <- function(url, collection, target, replace = FALSE) {
-  show_message("downloading datasets")
+  message("downloading datasets")
 
   collection_filename <- file.path(url, collection)
   message(paste("  reading collection from", collection_filename))
