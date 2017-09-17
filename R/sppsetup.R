@@ -1,7 +1,13 @@
 # -------------------------------------------------------------------
 show_message <- function(msg, duration = NULL) {
-  message(msg)
-  shiny::showNotification(msg, id = "status", duration = duration)
+  id <- "status"
+
+  if (is.null(msg))
+    shiny::removeNotification(id = id)
+  else {
+    message(msg)
+    shiny::showNotification(msg, id = id, duration = duration)
+  }
 }
 
 #----------------------------------------------------------------

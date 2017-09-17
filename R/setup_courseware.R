@@ -57,11 +57,11 @@ setup_courseware <- function() {
     })
 
     shiny::observeEvent(input$setup, {
-      messages$status_message <- "Do not close this window until the setup is complete."
+      set_status("Do not close this window until the setup is complete.")
       tryCatch({
         sppsetup(input$module, input$replace)
         set_status("Done. You can close this window now.")
-        shiny::removeNotification(id = "status")
+        show_message(NULL)
         show_modal_dialog("Courseware Setup Complete", "You can run the setup again anytime from the 'Addins' menu in RStudio")
       },
         error = function(e) { set_status(e) },
