@@ -4,30 +4,74 @@
 #'
 #' @export
 setup_courseware <- function() {
-  R_required <- "3.4.1"
-  RStudio_required <- "1.0.153"
-  messages <- shiny::reactiveValues(status_message="")
+  R_required <- "3.3.1"
+  RStudio_required <- "0.99.903"
 
-  set_status <- function(msg) {
-    messages$status_message <- paste(msg, collapse = "\n")
+  colors <- list(
+    default = "black",
+    success = "green",
+    error = "red"
+  )
+
+  get_startup_status <- function() {
+
+    old_component_error <- function(component, url, color) {
+      msg <- htmltools::tags$p(
+        "This version of", component, "is too old. Please download the latest from:",
+        htmltools::tags$ul(
+          htmltools::tags$li(
+            htmltools::a(url, href=url)
+          )
+        )
+      )
+      list(msg = msg, color = colors$error)
+    }
+
+    if (utils::compareVersion(paste(R.version$major, R.version$minor, sep = "."), R_required) < 0)
+      return(old_component_error("R", "https://cran.r-project.org"))
+
+    if (!rstudioapi::isAvailable(RStudio_required))
+      return(old_component_error("RStudio", "https://www.rstudio.com"))
+
+    return(list(msg = "", color = colors$default))
   }
+
+  startup_status <- get_startup_status()
+  status <- shiny::reactiveValues(msg = startup_status$msg, color = startup_status$color)
+  module <- shiny::reactiveValues(config = NULL)
 
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar("Setup Courseware", left = NULL),
-    miniUI::miniContentPanel(
-      shiny::verbatimTextOutput("r_version", placeholder = TRUE),
-      shiny::verbatimTextOutput("error_message", placeholder = FALSE),
-      shiny::tags$style(type='text/css', '#error_message {color: red;}'),
-      shiny::selectInput("module", "Module:", modules),
-      shiny::checkboxInput("replace", label = "Update all datasets", value = FALSE),
-      shiny::actionButton("setup", "Setup Courseware"),
-      shiny::hr(),
-      shiny::verbatimTextOutput("status_message", placeholder = FALSE),
-      shiny::tags$style(type='text/css', '#status_message {color: green;}'),
-      padding = 10, scrollable = TRUE)
+    miniUI::miniTabstripPanel(
+      miniUI::miniTabPanel(
+        "Setup",
+        icon = shiny::icon("cogs"),
+        miniUI::miniContentPanel(
+          shiny::verbatimTextOutput("r_version", placeholder = TRUE),
+          shiny::selectInput("module", "Module:", modules),
+          shiny::checkboxInput("replace", label = "Update all datasets", value = FALSE),
+          shiny::actionButton("setup", "Setup Courseware"),
+          shiny::hr(),
+          shiny::htmlOutput("status"),
+          padding = 10, scrollable = TRUE)
+      ),
+      miniUI::miniTabPanel(
+        "Help",
+        icon = shiny::icon("info"),
+        miniUI::miniContentPanel(
+          shiny::htmlOutput("help"),
+          shiny::hr(),
+          shiny::textInput("name", "Name"),
+          shiny::textInput("email", "Email"),
+          shiny::actionButton("send_report", "Send Error Report")
+        )
+      )
+    )
   )
 
-  killapp <- function() {
+  killapp <- function(msg = NULL) {
+    if (!is.null(msg))
+      message(msg)
     invisible(shiny::stopApp())
   }
 
@@ -36,47 +80,59 @@ setup_courseware <- function() {
   }
 
   server <- function(input, output, session) {
+    logfile <- tempfile(pattern = "sppsetup_")
+
     output$r_version <- shiny::renderText({
       return(sprintf("%s\nRStudio version: %s", R.version.string, rstudioapi::getVersion()))
     })
 
-    output$error_message <- shiny::renderText({
-      obsolete_message <- "This version of %s is too old. Please\ndownload the latest from:\n  %s"
+    output$status <- shiny::renderText(sprintf("<font color='%s'>%s</font>", status$color, status$msg))
 
-      if (utils::compareVersion(paste(R.version$major, R.version$minor, sep = "."), R_required) < 0)
-        return(sprintf(obsolete_message, "R", "https://cran.r-project.org"))
+    set_status <- function(msg, color, error = FALSE) {
+      status$msg <- paste(msg, collapse = "<br>")
+      status$color <- color
+      if (error)
+        message(msg)
+      show_message(NULL)
+    }
 
-      if (!rstudioapi::isAvailable(RStudio_required))
-        return(sprintf(obsolete_message, "RStudio", "https://www.rstudio.com"))
+    output$help <- shiny::renderText(
+      return("You can submit an error report if you encounter any problems during setup.")
+    )
 
-      return("")
+    set_success <- function(msg) { set_status(msg, colors$success) }
+    set_error <- function(msg) { set_status(msg, colors$error, TRUE) }
+
+    shiny::observeEvent(input$module, {
+      module$config <- yaml::yaml.load_file(input$module)
     })
-
-    output$status_message <- shiny::renderText(messages$status_message)
 
     shiny::observeEvent(input$done, {
       killapp()
     })
 
     shiny::observeEvent(input$setup, {
-      set_status("Do not close this window until the setup is complete.")
       tryCatch({
-        sppsetup(input$module, input$replace)
-        set_status("Done. You can close this window now.")
-        show_message(NULL)
-        show_modal_dialog("Courseware Setup Complete", "You can run the setup again anytime from the 'Addins' menu in RStudio")
-      },
-        error = function(e) {
-          message(e$message)
-          set_status(e)
+          sppsetup(module$config, input$replace, logfile)
+          set_success("Setup complete. You can close this window now.")
+          show_modal_dialog("Courseware Setup Complete", "You can run the setup again anytime from the 'Addins' menu in RStudio")
         },
-        warning = function(e) {
-          message(e$message)
-          set_status(e)
-        }
+        error = function(e) { set_error(e$message) },
+        warning = function(e) { set_error(e$message) },
+        finally = function(e) { sink() }
       )
+    })
+
+    shiny::observeEvent(input$send_report, {
+      dsn <- module$config$sentry$url
+
+      dsn <- "https://29845a7c0f4b4ebf929a1cbcac3be9a4:b8ed650559d84a96845361bbddd4b6dd@sentry.io/219443"
+      send_report(dsn,
+                  logfile = logfile,
+                  user = list(name = input$name, email = input$email),
+                  exception = list(type = "Diagnostic Report", message = status$msg))
     })
   }
 
-  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 400, height = 380))
+  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 400, height = 420))
 }

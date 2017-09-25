@@ -1,12 +1,47 @@
+#----------------------------------------------------------------
+sppsetup <- function(module, replace, logfile) {
+  config_env <- new.env()
+
+  sink(logfile, split = TRUE)
+
+  show_message("setting up courseware")
+
+  show_message(paste("writing log file:", logfile))
+
+  config_env$working_dir <- module$working_dir
+
+  load_config(config_env, module$config_file)
+
+  verify_working_dir(module$working_dir)
+
+  show_message("downloading datasets")
+
+  download_datasets(module$datasets$url, module$datasets$collection, module$working_dir, replace)
+
+  save_config(module$name, config_env, module$config_file)
+
+  install_packages(module$packages)
+
+  hrule <- paste0("\n", paste(rep("*", 64), collapse = ""), "\n")
+  cat(paste0(hrule, "IMPORTANT: Read this carefully", hrule))
+  cat("\nEvery script you write must include the following line at the top:\n\n")
+  message(make_setwd_expr(config_env$working_dir))
+  cat("\nWrite it down or save it in a place where you can easily find it.\n\n")
+
+  verify_packages(module$packages)
+}
+
 # -------------------------------------------------------------------
-show_message <- function(msg, duration = NULL) {
+show_message <- function(msg) {
   id <- "status"
+
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
 
   if (is.null(msg))
     shiny::removeNotification(id = id)
   else {
-    message(msg)
-    shiny::showNotification(msg, id = id, duration = duration)
+    cat(paste(timestamp, msg, "\n"))
+    shiny::showNotification(msg, id = id, duration = NULL)
   }
 }
 
@@ -38,61 +73,82 @@ save_config <- function(module, env, filename) {
 
 #----------------------------------------------------------------
 verify_working_dir <- function(path) {
+  show_message(paste("verifying", path.expand(path)))
+
   if (dir.exists(path))
     return(0)
 
   show_message(paste("creating", path))
   if (!dir.create(path))
-    stop(paste("Failed to create", path))
+    stop(paste("failed to create", path))
 
   if(!dir.exists(path))
     stop(paste(path, "does not exist"))
 }
 
 #----------------------------------------------------------------
-verify_packages <- function(packages) {
-  installed_packages <- rownames(utils::installed.packages())
-
-  package_installer <- function(installer, packages, quiet = FALSE) {
-    if (length(packages)) {
-      show_message(paste("installing", paste(packages, collapse = ", ")))
-      installer(packages, quiet = quiet, verbose = TRUE)
-    }
-  }
-
-  package_installer(utils::install.packages, setdiff(packages$cran, installed_packages))
-
-  package_installer(devtools::install_github, packages$github)
+system_exec_r <- function(expr) {
+  sys_command <- paste(Sys.which("Rscript"), "-e", shQuote(expr))
+  show_message("running system command")
+  cat(paste(sys_command, "\n"))
+  system(sys_command)
 }
 
 #----------------------------------------------------------------
-sppsetup <- function(module_config, replace) {
-  config_env <- new.env()
-  startup_file <- path.expand("~/.Rprofile")
+rscript_exec <- function(expr) {
+  rscript <- Sys.which("Rscript")
+  args <- paste("-e", shQuote(expr))
+  show_message("running system command")
+  cat(paste(rscript, args, "\n"))
+  cat(paste(system2(rscript, args, stdout = TRUE, stderr = TRUE), collapse = "\n"))
+  cat("\n")
+}
 
-  show_message("setting up courseware...")
+#----------------------------------------------------------------
+install_packages <- function(packages) {
+  installed_packages <- rownames(utils::installed.packages())
 
-  module <- yaml::yaml.load_file(module_config)
+  package_installer <- function(installer, packages, args = NULL) {
+    if (!length(packages))
+      return()
 
-  config_env$working_dir <- module$working_dir
+    show_message(paste("installing/updating packages:", paste(packages, collapse = ", ")))
 
-  show_message("Starting setup, please wait...")
+    package_list <- sprintf("c(%s)", paste(shQuote(packages), collapse = ", "))
 
-  load_config(config_env, module$config_file)
+    args <- paste(sapply(names(args), function(x) sprintf("%s = %s", x, args[[x]])),
+                  collapse = ", ")
 
-  verify_working_dir(module$working_dir)
+    arg_list <- paste(setdiff(c(package_list, args), ""), collapse = ", ")
 
-  show_message("downloading datasets ...", duration = NULL)
-  download_datasets(module$datasets$url, module$datasets$collection, module$working_dir, replace)
+    install_expr <- sprintf("%s(%s)", deparse(substitute(installer)), arg_list)
 
-  save_config(module$name, config_env, module$config_file)
+    cat(paste0("\n", install_expr, "\n\n"))
+    rscript_exec(install_expr)
+  }
 
-  verify_packages(module$packages)
+  package_installer(utils::install.packages,
+                    setdiff(packages$cran, installed_packages),
+                    list(repos = shQuote("http://cran.us.r-project.org")))
 
-  hrule <- paste0("\n", paste(rep("*", 64), collapse = ""), "\n")
-  cat(paste0(hrule, "IMPORTANT: Read this carefully", hrule))
-  cat("\nEvery script you write must include the following line at the top:\n\n")
-  message(make_setwd_expr(config_env$working_dir))
-  cat("\nWrite it down or save it in a place where you can easily find it.\n\n")
+  github_packages <- stats::setNames(packages$github,
+                                     sapply(strsplit(packages$github, "/"), utils::tail, n=1))
+
+  installed_github_packages <- intersect(names(github_packages), installed_packages)
+  missing_github_packages <- github_packages[setdiff(names(github_packages), installed_github_packages)]
+
+  package_installer(devtools::install_github, missing_github_packages)
+  package_installer(devtools::update_packages, unique(installed_github_packages))
+}
+
+#----------------------------------------------------------------
+verify_packages <- function(packages) {
+  installed_packages <- rownames(utils::installed.packages())
+  package_list <- sapply(unlist(packages),
+                         function(s) utils::tail(unlist(strsplit(s, "/")), n=1))
+
+  missing_packages <- setdiff(package_list, installed_packages)
+  if (length(missing_packages))
+    stop(c("Error: missing packages: ", paste(missing_packages, collapse=", ")))
 }
 

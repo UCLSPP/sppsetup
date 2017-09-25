@@ -9,10 +9,10 @@
 #'
 #' @export
 download_datasets <- function(url, collection, target, replace = FALSE) {
-  message("downloading datasets")
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
 
   collection_filename <- file.path(url, collection)
-  message(paste("  reading collection from", collection_filename))
+  cat(paste(timestamp, "reading collection from", collection_filename, "\n"))
 
   collection_data <- utils::read.csv(collection_filename,
                                      strip.white = TRUE,
@@ -26,7 +26,8 @@ download_datasets <- function(url, collection, target, replace = FALSE) {
     if (file.exists(target_path) && !replace)
       next
 
-    message(sprintf("    %s", filename))
+    timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+    cat(paste(timestamp, "  ", filename, "\n"))
     utils::download.file(source_path, target_path, quiet = TRUE)
   }
 }
