@@ -1,7 +1,7 @@
 Package: sppsetup
 Type: Package
 Title: UCLSPP Setup Courseware
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Altaf", "Ali", email = "altaf@fastmail.com", role = c("aut", "cre"))
   )
@@ -12,14 +12,17 @@ LazyData: true
 RoxygenNote: 6.0.1
 URL: https://github.com/UCLSPP/sppsetup
 BugReports: https://github.com/UCLSPP/sppsetup/issues
-Modules:
-  - PUBLG100: https://uclspp.github.io/PUBLG100/config.yml
 Depends: R (>= 2.10)
 Imports:
   yaml,
+  httr,
+  ravenr,
   devtools,
+  htmltools,
   rstudioapi (>= 0.4),
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
-Suggests: testthat
-
+Suggests: 
+  testthat
+Remotes:
+    altaf-ali/ravenr
