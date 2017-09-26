@@ -108,25 +108,6 @@ rscript_exec <- function(expr) {
 install_packages <- function(packages) {
   installed_packages <- rownames(utils::installed.packages())
 
-  package_installer <- function(installer, packages, args = NULL) {
-    if (!length(packages))
-      return()
-
-    show_message(paste("installing/updating packages:", paste(packages, collapse = ", ")))
-
-    package_list <- sprintf("c(%s)", paste(shQuote(packages), collapse = ", "))
-
-    args <- paste(sapply(names(args), function(x) sprintf("%s = %s", x, args[[x]])),
-                  collapse = ", ")
-
-    arg_list <- paste(setdiff(c(package_list, args), ""), collapse = ", ")
-
-    install_expr <- sprintf("%s(%s)", deparse(substitute(installer)), arg_list)
-
-    cat(paste0("\n", install_expr, "\n\n"))
-    rscript_exec(install_expr)
-  }
-
   package_installer(utils::install.packages,
                     setdiff(packages$cran, installed_packages),
                     list(repos = shQuote("http://cran.us.r-project.org")))
@@ -139,6 +120,26 @@ install_packages <- function(packages) {
 
   package_installer(devtools::install_github, missing_github_packages)
   package_installer(devtools::update_packages, unique(installed_github_packages))
+}
+
+#----------------------------------------------------------------
+package_installer <- function(installer, packages, args = NULL) {
+  if (!length(packages))
+    return()
+
+  show_message(paste("installing/updating packages:", paste(packages, collapse = ", ")))
+
+  package_list <- sprintf("c(%s)", paste(shQuote(packages), collapse = ", "))
+
+  args <- paste(sapply(names(args), function(x) sprintf("%s = %s", x, args[[x]])),
+                collapse = ", ")
+
+  arg_list <- paste(setdiff(c(package_list, args), ""), collapse = ", ")
+
+  install_expr <- sprintf("%s(%s)", deparse(substitute(installer)), arg_list)
+
+  cat(paste0("\n", install_expr, "\n\n"))
+  rscript_exec(install_expr)
 }
 
 #----------------------------------------------------------------
