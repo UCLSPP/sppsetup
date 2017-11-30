@@ -4,7 +4,7 @@
 \alias{download_datasets}
 \title{Download datasets}
 \usage{
-download_datasets(url, collection, target, replace = FALSE)
+download_datasets(url, collection, target, method = "auto", replace = FALSE)
 }
 \arguments{
 \item{url}{URL of dataset repository}
@@ -12,6 +12,8 @@ download_datasets(url, collection, target, replace = FALSE)
 \item{collection}{filename of collection under the dataset repository}
 
 \item{target}{target directory for downloading}
+
+\item{method}{a method argument passed to download.file}
 
 \item{replace}{a boolean flag indicating whether to replace existing datasets}
 }
