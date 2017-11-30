@@ -1,7 +1,7 @@
 Package: sppsetup
 Type: Package
 Title: UCLSPP Setup Courseware
-Version: 0.1.3
+Version: 0.1.4
 Authors@R: c(
     person("Altaf", "Ali", email = "altaf@fastmail.com", role = c("aut", "cre"))
   )
