@@ -5,11 +5,11 @@
 #' @param url URL of dataset repository
 #' @param collection filename of collection under the dataset repository
 #' @param target target directory for downloading
-#' @param method a method argument passed to download.file
 #' @param replace a boolean flag indicating whether to replace existing datasets
+#' @param method a method argument passed to download.file
 #'
 #' @export
-download_datasets <- function(url, collection, target, method = "auto", replace = FALSE) {
+download_datasets <- function(url, collection, target, replace = FALSE, method = "auto") {
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
 
   collection_filename <- file.path(url, collection)

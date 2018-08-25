@@ -16,7 +16,10 @@ sppsetup <- function(module, replace, logfile) {
 
   show_message("downloading datasets")
 
-  download_datasets(module$datasets$url, module$datasets$collection, module$working_dir, replace)
+  download_datasets(module$datasets$url,
+                    module$datasets$collection,
+                    module$working_dir,
+                    replace = replace)
 
   save_config(module$name, config_env, module$config_file)
 
@@ -112,14 +115,16 @@ install_packages <- function(packages) {
                     setdiff(packages$cran, installed_packages),
                     list(repos = shQuote("http://cran.us.r-project.org")))
 
-  github_packages <- stats::setNames(packages$github,
-                                     sapply(strsplit(packages$github, "/"), utils::tail, n=1))
+  if (!is.null(packages$github)) {
+    github_packages <- stats::setNames(packages$github,
+                                       sapply(strsplit(packages$github, "/"), utils::tail, n=1))
 
-  installed_github_packages <- intersect(names(github_packages), installed_packages)
-  missing_github_packages <- github_packages[setdiff(names(github_packages), installed_github_packages)]
+    installed_github_packages <- intersect(names(github_packages), installed_packages)
+    missing_github_packages <- github_packages[setdiff(names(github_packages), installed_github_packages)]
 
-  package_installer(devtools::install_github, missing_github_packages)
-  package_installer(devtools::update_packages, unique(installed_github_packages))
+    package_installer(devtools::install_github, missing_github_packages)
+    package_installer(devtools::update_packages, unique(installed_github_packages))
+  }
 }
 
 #----------------------------------------------------------------
