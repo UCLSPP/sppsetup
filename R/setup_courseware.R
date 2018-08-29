@@ -66,13 +66,16 @@ setup_courseware <- function() {
       ),
       miniUI::miniTabPanel(
         "Help",
-        icon = shiny::icon("info"),
+        icon = shiny::icon("info-circle"),
         miniUI::miniContentPanel(
           shiny::htmlOutput("help"),
           shiny::hr(),
           shiny::textInput("name", "Name"),
           shiny::textInput("email", "Email"),
-          shiny::actionButton("send_report", "Send Error Report")
+          shiny::actionButton("send_report", "Send Error Report",
+                              icon = shiny::icon("share-square"),
+                              style = "color: black",
+                              class = "btn-warning")
         )
       )
     )
@@ -125,7 +128,7 @@ setup_courseware <- function() {
           sppsetup(module$config, input$replace, logfile)
           set_success("Setup complete. You can close this window now.")
           message <- shiny::HTML(
-            "You can run the setup again anytime from the <strong>Addins</strong> menu in RStudio"
+            "You can run the setup again anytime from the <strong>Addins</strong> menu in RStudio."
           )
           show_modal_dialog(paste(title, "Complete"), message)
         },

@@ -76,7 +76,7 @@ save_config <- function(module, env, filename) {
 
 #----------------------------------------------------------------
 verify_working_dir <- function(path) {
-  show_message(paste("verifying", path.expand(path)))
+  show_message(paste("verifying", path))
 
   if (dir.exists(path))
     return(0)
