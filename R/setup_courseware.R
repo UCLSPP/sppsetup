@@ -39,9 +39,10 @@ setup_courseware <- function() {
   startup_status <- get_startup_status()
   status <- shiny::reactiveValues(msg = startup_status$msg, color = startup_status$color)
   module <- shiny::reactiveValues(config = NULL)
+  title <- "Courseware Setup"
 
   ui <- miniUI::miniPage(
-    miniUI::gadgetTitleBar("Setup Courseware", left = NULL),
+    miniUI::gadgetTitleBar(title, left = NULL, right = NULL),
     miniUI::miniTabstripPanel(
       miniUI::miniTabPanel(
         "Setup",
@@ -50,7 +51,15 @@ setup_courseware <- function() {
           shiny::verbatimTextOutput("r_version", placeholder = TRUE),
           shiny::selectInput("module", "Module:", modules),
           shiny::checkboxInput("replace", label = "Update all datasets", value = FALSE),
-          shiny::actionButton("setup", "Setup Courseware"),
+
+          shiny::actionButton("setup", "Continue",
+                              icon = shiny::icon("cloud-download"),
+                              class = "btn-success"),
+
+          shiny::actionButton("exit", "Exit",
+                              icon = shiny::icon("times-circle"),
+                              class = "btn-danger"),
+
           shiny::hr(),
           shiny::htmlOutput("status"),
           padding = 10, scrollable = TRUE)
@@ -107,7 +116,7 @@ setup_courseware <- function() {
       module$config <- yaml::yaml.load_file(input$module)
     })
 
-    shiny::observeEvent(input$done, {
+    shiny::observeEvent(input$exit, {
       killapp()
     })
 
@@ -115,7 +124,10 @@ setup_courseware <- function() {
       tryCatch({
           sppsetup(module$config, input$replace, logfile)
           set_success("Setup complete. You can close this window now.")
-          show_modal_dialog("Courseware Setup Complete", "You can run the setup again anytime from the 'Addins' menu in RStudio")
+          message <- shiny::HTML(
+            "You can run the setup again anytime from the <strong>Addins</strong> menu in RStudio"
+          )
+          show_modal_dialog(paste(title, "Complete"), message)
         },
         error = function(e) { set_error(e$message) },
         warning = function(e) { set_error(e$message) },
