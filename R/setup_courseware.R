@@ -116,7 +116,9 @@ setup_courseware <- function() {
     set_error <- function(msg) { set_status(msg, colors$error, TRUE) }
 
     shiny::observeEvent(input$module, {
-      module$config <- yaml::yaml.load_file(input$module)
+      module_url <- url(input$module)
+      module$config <- yaml::yaml.load_file(module_url)
+      close(module_url)
     })
 
     shiny::observeEvent(input$exit, {

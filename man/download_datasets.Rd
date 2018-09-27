@@ -4,7 +4,8 @@
 \alias{download_datasets}
 \title{Download datasets}
 \usage{
-download_datasets(url, collection, target, replace = FALSE, method = "auto")
+download_datasets(url, collection, target, replace = FALSE,
+  method = "auto")
 }
 \arguments{
 \item{url}{URL of dataset repository}
