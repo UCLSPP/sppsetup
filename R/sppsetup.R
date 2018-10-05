@@ -12,13 +12,13 @@ sppsetup <- function(module, replace, logfile) {
 
   load_config(config_env, module$config_file)
 
-  verify_working_dir(module$working_dir)
+  verify_working_dir(config_env$working_dir)
 
   show_message("downloading datasets")
 
   download_datasets(module$datasets$url,
                     module$datasets$collection,
-                    module$working_dir,
+                    config_env$working_dir,
                     replace = replace)
 
   save_config(module$name, config_env, module$config_file)
