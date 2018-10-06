@@ -175,6 +175,6 @@ setup_courseware <- function() {
     })
   }
 
-  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 420, height = 600))
+  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 420, height = 480))
 }
 
