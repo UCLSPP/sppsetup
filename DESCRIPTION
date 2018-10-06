@@ -1,7 +1,7 @@
 Package: sppsetup
 Type: Package
 Title: UCLSPP Setup Courseware
-Version: 0.2.2
+Version: 0.2.1
 Authors@R: c(
     person("Altaf", "Ali", email = "altaf@fastmail.com", role = c("aut", "cre"))
   )
@@ -19,7 +19,7 @@ Imports:
   ravenr,
   devtools,
   htmltools,
-  rstudioapi (>= 0.8),
+  rstudioapi (>= 0.4),
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
 Suggests: 

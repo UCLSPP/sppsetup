@@ -43,7 +43,7 @@ setup_courseware <- function() {
   startup_status <- get_startup_status()
   status <- shiny::reactiveValues(msg = startup_status$msg, color = startup_status$color)
   options <- shiny::reactiveValues(module = NULL)
-  title <- paste("Courseware Setup", packageVersion("sppsetup"))
+  title <- "Courseware Setup"
 
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar(title, left = NULL, right = NULL),
