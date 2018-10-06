@@ -50,7 +50,7 @@ setup_courseware <- function() {
     miniUI::miniTabstripPanel(
       miniUI::miniTabPanel(
         "Setup",
-        icon = shiny::icon("cogs"),
+        icon = shiny::icon("cog"),
         miniUI::miniContentPanel(
           shiny::verbatimTextOutput("r_version", placeholder = TRUE),
           shiny::selectInput("module", "Module:", modules),
