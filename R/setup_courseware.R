@@ -43,7 +43,7 @@ setup_courseware <- function() {
   startup_status <- get_startup_status()
   status <- shiny::reactiveValues(msg = startup_status$msg, color = startup_status$color)
   options <- shiny::reactiveValues(module = NULL)
-  title <- "Courseware Setup"
+  title <- paste("Courseware Setup", packageVersion("sppsetup"))
 
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar(title, left = NULL, right = NULL),
@@ -175,6 +175,6 @@ setup_courseware <- function() {
     })
   }
 
-  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 420, height = 500))
+  shiny::runGadget(ui, server, viewer = shiny::dialogViewer("", width = 420, height = 600))
 }
 
