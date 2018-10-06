@@ -19,7 +19,7 @@ Imports:
   ravenr,
   devtools,
   htmltools,
-  rstudioapi (>= 0.4),
+  rstudioapi (>= 0.8),
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
 Suggests: 
