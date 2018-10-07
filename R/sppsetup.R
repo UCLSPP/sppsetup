@@ -33,12 +33,10 @@ sppsetup <- function(module, replace, logfile) {
 show_message <- function(msg) {
   id <- "status"
 
-  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-
   if (is.null(msg))
     shiny::removeNotification(id = id)
   else {
-    cat(paste(timestamp, msg, "\n"))
+    cat(paste(systime(), msg, "\n"))
     shiny::showNotification(msg, id = id, duration = NULL)
   }
 }
