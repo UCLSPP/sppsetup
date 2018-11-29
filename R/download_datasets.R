@@ -26,6 +26,11 @@ download_datasets <- function(url, collection, target, replace = FALSE, method =
       next
 
     cat(paste(systime(), "  ", filename, "\n"))
-    utils::download.file(source_path, target_path, method = method, quiet = FALSE)
+    utils::download.file(
+      source_path,
+      target_path,
+      mode = "wb",
+      method = method,
+      quiet = FALSE)
   }
 }
