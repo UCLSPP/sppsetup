@@ -1,16 +1,10 @@
 #----------------------------------------------------------------
 sppsetup <- function(module, replace, logfile) {
-  config_env <- new.env()
-
   sink(logfile, split = TRUE)
 
   show_message("setting up courseware")
 
   show_message(paste("writing log file:", logfile))
-
-  config_env$working_dir <- module$working_dir
-
-  load_config(config_env, module$config_file)
 
   verify_working_dir(module$working_dir)
 
@@ -21,14 +15,15 @@ sppsetup <- function(module, replace, logfile) {
                     module$working_dir,
                     replace = replace)
 
-  save_config(module$name, config_env, module$config_file)
+  params <- module[names(module) %in% c("working_dir")]
+  save_config(module$name, params, module$config_file)
 
   install_packages(module$packages)
 
   hrule <- paste0("\n", paste(rep("*", 64), collapse = ""), "\n")
   cat(paste0(hrule, "IMPORTANT: Read this carefully", hrule))
   cat("\nEvery script you write must include the following line at the top:\n\n")
-  message(make_setwd_expr(config_env$working_dir))
+  message(make_setwd_expr(module$working_dir))
   cat("\nWrite it down or save it in a place where you can easily find it.\n\n")
 
   verify_packages(module$packages)
@@ -38,12 +33,10 @@ sppsetup <- function(module, replace, logfile) {
 show_message <- function(msg) {
   id <- "status"
 
-  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-
   if (is.null(msg))
     shiny::removeNotification(id = id)
   else {
-    cat(paste(timestamp, msg, "\n"))
+    cat(paste(systime(), msg, "\n"))
     shiny::showNotification(msg, id = id, duration = NULL)
   }
 }
@@ -54,23 +47,40 @@ make_setwd_expr <- function(path) {
 }
 
 # -------------------------------------------------------------------
-load_config <- function(env, filename) {
-  if (file.exists(filename)) {
-    show_message("loading configuration")
-    source(filename, local = env)
+load_module <- function(filename) {
+  module_url <- url(filename)
+  module <- yaml::yaml.load_file(module_url)
+  close(module_url)
+
+  config <- load_config(module$config_file)
+  if ("working_dir" %in% names(config)) {
+    module$working_dir <- config$working_dir
   }
+  return(module)
 }
 
 # -------------------------------------------------------------------
-save_config <- function(module, env, filename) {
+load_config <- function(filename) {
+  env <- new.env()
+
+  if (file.exists(filename)) {
+    show_message(paste("loading configuration", filename))
+    source(filename, local = env)
+    show_message(NULL)
+  }
+  return(as.list(env))
+}
+
+# -------------------------------------------------------------------
+save_config <- function(name, params, filename) {
   config_data <- c(
-    list(header = sprintf("# %s configuration\n", module)),
-    sapply(names(env), function(i, e) {
+    list(header = sprintf("# %s configuration\n", name)),
+    sapply(names(params), function(i, e) {
       return(sprintf("%s = \"%s\"", i, as.list(e)[[i]]))
-    }, env)
+    }, params)
   )
 
-  show_message("saving configuration")
+  show_message(paste("saving configuration", filename))
   writeLines(paste(config_data, collapse = "\n"), filename)
 }
 
